@@ -1,4 +1,4 @@
-from core.database import Base, engine
+from app.core.database import Base
 from sqlalchemy import Column, Integer, String, Enum
 from enum import Enum as PyEnum
 
@@ -18,5 +18,3 @@ class User(Base):
     last_name = Column(String)
     hashed_password = Column(String)
     
-
-Base.metadata.create_all(bind=engine)
