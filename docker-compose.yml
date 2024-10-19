@@ -1,0 +1,30 @@
+version: '3.1'
+
+services:
+  api:
+    container_name: manage_api
+    build: .
+    depends_on:
+      - db
+    tty: true
+    stdin_open: true
+    volumes:
+    - .:/home/appuser/manage_api:cached
+    ports:
+      - "8000:8000"
+
+  db:
+      image: postgres:15-alpine
+      container_name: manage_postgres
+      volumes:
+        - manage_postgres:/var/lib/postgresql/data
+        - ./docker/postgres/database:/database
+      expose:
+        - 5433
+      environment:
+        - POSTGRES_USER=manage
+        - POSTGRES_PASSWORD=manage
+        - POSTGRES_DB=manage_db
+
+volumes:
+      manage_postgres: 
