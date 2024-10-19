@@ -5,5 +5,4 @@ class CreateUser(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
-    role: str
     password: str
