@@ -1,8 +1,16 @@
 import os
 
+from dotenv import load_dotenv
+
+from typing import Annotated
+
+from fastapi import Depends
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
+
+load_dotenv()
 
 DATABASE_URL = os.getenv('DATABASE_URL')
 
@@ -18,3 +26,5 @@ def get_db():
         yield db
     finally:
         db.close()
+
+db_dependency = Annotated[Session, Depends(get_db)]
