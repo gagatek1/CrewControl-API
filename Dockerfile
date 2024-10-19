@@ -26,4 +26,4 @@ ENV PATH /home/appuser/.local/bin
 
 EXPOSE 8000
 
-CMD ["fastapi", "run", "app/main.py"]
+CMD ["fastapi", "run", "main.py"]
