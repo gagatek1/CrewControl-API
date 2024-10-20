@@ -8,4 +8,4 @@ class CreateTask(BaseModel):
 class UpdateTask(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    done: Optional[bool] = None
+    done: Optional[bool] = False
