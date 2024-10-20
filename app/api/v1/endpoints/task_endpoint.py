@@ -56,3 +56,15 @@ async def update_task(task_id: int, db: db_dependency, update_task: UpdateTask, 
         return task
     else:
         raise HTTPException(status_code=401)
+    
+@task_router.delete('/delete/{task_id}')
+async def delete_task(task_id: int, db: db_dependency, get_user: dict = Depends(get_current_user)):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    
+    if task is None:
+        raise HTTPException(status_code=404, detail='Task not found')
+    if task.user_id == get_user['user_id']:
+        db.delete(task)
+        db.commit()
+
+        return { 'status': 'deleted' }
