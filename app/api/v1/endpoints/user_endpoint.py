@@ -57,9 +57,9 @@ async def create_user(db: db_dependency, create_user: CreateUser):
 
     return { 'status': 'created' }
 
-@user_router.put('/update/{user_id}', status_code=status.HTTP_202_ACCEPTED)
-async def update_user(user_id: int, db: db_dependency, update_user: UpdateUser):
-    user = db.query(User).filter(User.id == user_id).first()
+@user_router.put('/update/me', status_code=status.HTTP_202_ACCEPTED)
+async def update_me(db: db_dependency, update_user: UpdateUser, get_user: dict = Depends(get_current_user)):
+    user = db.query(User).filter(User.id == get_user['user_id']).first()
 
     if user is None:
         raise HTTPException(status=404, detail='User not found')
