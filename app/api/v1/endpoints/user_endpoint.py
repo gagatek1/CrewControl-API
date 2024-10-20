@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from passlib.context import CryptContext
 
@@ -26,3 +26,20 @@ async def create_user(db: db_dependency, create_user: CreateUser):
     db.commit()
 
     return { 'status': 'created' }
+
+@user_router.put('/update/{user_id}')
+async def update_user(user_id: int, db: db_dependency, update_user: UpdateUser):
+    db_user = db.query(User).filter(User.id == user_id).first()
+
+    if db_user is None:
+        raise HTTPException(status=404, detail='User not found')
+    
+    db_user.email = update_user.email
+    db_user.username = update_user.username
+    db_user.hashed_password = update_user.password
+    db.commit()
+    db.refresh(db_user)
+
+    return db_user
+    
+
