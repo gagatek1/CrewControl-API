@@ -25,6 +25,13 @@ def auth_user(username: str, password: str, db):
         return False
     return True
 
+@user_router.get('{user_id}')
+async def get_user(user_id: int, db: db_dependency):
+    user = db.query(User).filter(User.id == user_id).first()
+
+    return user
+
+
 @user_router.post('/create', status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, create_user: CreateUser):
     create_user_model = User(
@@ -42,18 +49,18 @@ async def create_user(db: db_dependency, create_user: CreateUser):
 
 @user_router.put('/update/{user_id}', status_code=status.HTTP_202_ACCEPTED)
 async def update_user(user_id: int, db: db_dependency, update_user: UpdateUser):
-    db_user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.id == user_id).first()
 
-    if db_user is None:
+    if user is None:
         raise HTTPException(status=404, detail='User not found')
     
-    db_user.email = update_user.email
-    db_user.username = update_user.username
-    db_user.hashed_password = bcrypt_context.hash(update_user.password)
+    user.email = update_user.email
+    user.username = update_user.username
+    user.hashed_password = bcrypt_context.hash(update_user.password)
     db.commit()
-    db.refresh(db_user)
+    db.refresh(user)
 
-    return db_user
+    return user
 
 @user_router.post('/auth')
 async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
