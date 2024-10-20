@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 class CreateTask(BaseModel):
@@ -5,6 +6,6 @@ class CreateTask(BaseModel):
     description: str
 
 class UpdateTask(BaseModel):
-    name: str
-    description: str
-    done: bool
+    name: Optional[str] = None
+    description: Optional[str] = None
+    done: Optional[bool] = None
