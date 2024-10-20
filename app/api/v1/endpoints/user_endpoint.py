@@ -1,4 +1,8 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import Depends
+
+from typing import Annotated
 
 from passlib.context import CryptContext
 
@@ -11,6 +15,15 @@ from app.core.database import db_dependency
 user_router = APIRouter(prefix='/users')
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+
+def auth_user(username: str, password: str, db):
+    user = db.query(User).filter(User.username == username).first()
+
+    if not user:
+        return False
+    if not bcrypt_context.verify(password, user.hashed_password):
+        return False
+    return True
 
 @user_router.post('/create', status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, create_user: CreateUser):
@@ -41,5 +54,14 @@ async def update_user(user_id: int, db: db_dependency, update_user: UpdateUser):
     db.refresh(db_user)
 
     return db_user
+
+@user_router.post('/auth')
+async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
+    user = auth_user(form_data.username, form_data.password, db)
+
+    if not user:
+        raise HTTPException(status_code=403, detail='Failed auth')
+    else:
+        return { 'token': 'token' }
     
 
