@@ -46,9 +46,9 @@ async def update_task(task_id: int, db: db_dependency, update_task: UpdateTask, 
     if task is None:
         raise HTTPException(status_code=404, detail='Task not found')
     if task.user_id == get_user['user_id']:
-        task.name = update_task.name
-        task.description = update_task.description
-        task.done = update_task.done
+        if update_task.name is not None: task.name = update_task.name
+        if update_task.description is not None: task.description = update_task.description
+        if update_task.description is not None: task.done = update_task.done
 
         db.commit()
         db.refresh(task)
