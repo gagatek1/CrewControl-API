@@ -8,11 +8,14 @@ from passlib.context import CryptContext
 
 from starlette import status
 
+from datetime import timedelta
+
 from app.schema.user import CreateUser, UpdateUser
 from app.models.user import User
 from app.core.database import db_dependency
+from app.core.security import create_access_token, get_current_user
 
-user_router = APIRouter(prefix='/users')
+user_router = APIRouter(prefix='/users', tags=['users'])
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -23,9 +26,16 @@ def auth_user(username: str, password: str, db):
         return False
     if not bcrypt_context.verify(password, user.hashed_password):
         return False
-    return True
+    return user
 
-@user_router.get('{user_id}')
+@user_router.get('/me')
+async def get_me(db: db_dependency, get_user: dict = Depends(get_current_user)):
+    user_id = get_user['user_id']
+    user = db.query(User).filter(User.id == user_id).first()
+
+    return user
+
+@user_router.get('/{user_id}')
 async def get_user(user_id: int, db: db_dependency):
     user = db.query(User).filter(User.id == user_id).first()
 
@@ -67,8 +77,13 @@ async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user = auth_user(form_data.username, form_data.password, db)
 
     if not user:
-        raise HTTPException(status_code=403, detail='Failed auth')
+        raise HTTPException(status_code=401, detail='Could not validate user')
     else:
-        return { 'token': 'token' }
+        return create_access_token(
+            username=user.username,
+            user_id=user.id,
+            expires_delta=timedelta(days=2),
+            db=db
+            )
     
 
