@@ -1,6 +1,10 @@
+from fastapi import HTTPException, Header
+
 from datetime import timedelta, datetime, timezone
 
-from jose import jwt
+from typing import Optional
+
+from jose import jwt, JWTError
 
 from dotenv import load_dotenv
 
@@ -29,3 +33,23 @@ def create_access_token(username: str, user_id: int, expires_delta: timedelta, d
     token = db.query(Token).filter(Token.access_token == token_model.access_token).first()
 
     return token
+
+async def get_current_user(authorization: Optional[str] = Header(None)):
+    if authorization is None or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Could not validate")
+    
+    token = authorization.split(" ")[1]
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get('sub')
+        user_id: int = payload.get('id')
+        if username is None or user_id is None:
+            raise HTTPException(status_code=401, detail='Could not validate')
+        else:
+            return {
+                'user_id': user_id,
+                'username': username
+            }
+    except JWTError:
+        raise HTTPException(status_code=401, detail='Could not validate')
