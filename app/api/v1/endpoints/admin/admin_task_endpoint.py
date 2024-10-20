@@ -4,7 +4,7 @@ from app.core.database import db_dependency
 from app.core.security import get_current_user
 from app.models.task import Task
 from app.models.user import UserRole, User
-from app.schema.task import UpdateTask
+from app.schema.task import UpdateTask, AdminCreateTask
 
 admin_task_router = APIRouter(prefix='/tasks')
 
@@ -61,4 +61,24 @@ async def show_task(task_id: int, db: db_dependency, get_admin: dict = Depends(g
         return task
     else:
         raise HTTPException(status_code=401, detail='Could not validate')
+
+@admin_task_router.post('/create')
+async def create_task(db: db_dependency, create_task: AdminCreateTask, get_admin: dict = Depends(get_current_user)):
+    current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
+
+    if current_admin.role == UserRole.admin:
+        create_task_model = Task(
+            name = create_task.name,
+            description = create_task.description,
+            user_id = create_task.user_id
+        )
+
+        db.add(create_task_model)
+        db.commit()
+
+        return { 'status': 'created' }
+    else:
+        raise HTTPException(status_code=401, detail='Could not validate')
+ 
+    
     
