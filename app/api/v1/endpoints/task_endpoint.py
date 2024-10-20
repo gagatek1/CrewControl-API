@@ -1,5 +1,4 @@
-from fastapi import APIRouter
-from fastapi import Depends
+from fastapi import APIRouter, HTTPException, Depends
 
 from app.core.database import db_dependency
 from app.core.security import get_current_user
@@ -22,3 +21,19 @@ async def create_task(db: db_dependency, create_task: CreateTask, get_user: dict
  
     db.add(create_task_model)
     db.commit()
+
+@task_router.get('/')
+async def show_tasks(db: db_dependency, get_user: dict = Depends(get_current_user)):
+    tasks = db.query(Task).filter(Task.user_id == get_user['user_id']).all()
+
+    return tasks
+
+@task_router.get('/{task_id}')
+async def get_task(task_id: int, db: db_dependency, get_user: dict = Depends(get_current_user)):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if task is None:
+        raise HTTPException(status_code=404, detail='Task not found')
+    if task.user_id == get_user['user_id']:
+        return task
+    else:
+        raise HTTPException(status_code=401)
