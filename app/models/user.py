@@ -1,5 +1,8 @@
 from app.core.database import Base
+
 from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy.orm import relationship
+
 from enum import Enum as PyEnum
 
 
@@ -17,4 +20,5 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     hashed_password = Column(String)
+    tasks = relationship('Task', back_populates='user')
     
