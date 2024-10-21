@@ -1,32 +1,26 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import Depends
-
+from datetime import timedelta
 from typing import Annotated
 
-from passlib.context import CryptContext
-
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 
-from datetime import timedelta
-
-from app.models.team import Team
-from app.schema.user import CreateUser, UpdateUser, JoinUser
-from app.models.user import User
 from app.core.database import db_dependency
 from app.core.security import create_access_token, get_current_user
+from app.models.team import Team
+from app.models.user import User
+from app.schema.user import CreateUser, JoinUser, UpdateUser
+from app.services.user.create_service import create_service
 
 user_router = APIRouter(prefix='/users', tags=['users'])
-
-bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 def auth_user(username: str, password: str, db):
     user = db.query(User).filter(User.username == username).first()
 
     if not user:
         return False
-    if not bcrypt_context.verify(password, user.hashed_password):
-        return False
+    # if not bcrypt_context.verify(password, user.hashed_password):
+    #     return False
     return user
 
 @user_router.get('/me')
@@ -45,18 +39,9 @@ async def get_user(user_id: int, db: db_dependency):
 
 @user_router.post('/create', status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, create_user: CreateUser):
-    create_user_model = User(
-        email=create_user.email,
-        username=create_user.username,
-        first_name=create_user.first_name,
-        last_name=create_user.last_name,
-        hashed_password=bcrypt_context.hash(create_user.password)
-    )
+    user = create_service(db, create_user)
 
-    db.add(create_user_model)
-    db.commit()
-
-    return { 'status': 'created' }
+    return user
 
 @user_router.put('/update/me', status_code=status.HTTP_202_ACCEPTED)
 async def update_me(db: db_dependency, update_user: UpdateUser, get_user: dict = Depends(get_current_user)):
@@ -64,7 +49,7 @@ async def update_me(db: db_dependency, update_user: UpdateUser, get_user: dict =
     
     user.email = update_user.email
     user.username = update_user.username
-    user.hashed_password = bcrypt_context.hash(update_user.password)
+    # user.hashed_password = bcrypt_context.hash(update_user.password)
     db.commit()
     db.refresh(user)
 
