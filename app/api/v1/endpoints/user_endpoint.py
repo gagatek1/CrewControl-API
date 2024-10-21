@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -6,22 +5,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 
 from app.core.database import db_dependency
-from app.core.security import create_access_token, get_current_user
+from app.core.security import get_current_user
 from app.models.team import Team
 from app.models.user import User
 from app.schema.user import CreateUser, JoinUser, UpdateUser
 from app.services.user.create_service import create_service
+from app.services.user.login_service import login_service
 
 user_router = APIRouter(prefix='/users', tags=['users'])
-
-def auth_user(username: str, password: str, db):
-    user = db.query(User).filter(User.username == username).first()
-
-    if not user:
-        return False
-    # if not bcrypt_context.verify(password, user.hashed_password):
-    #     return False
-    return user
 
 @user_router.get('/me')
 async def get_me(db: db_dependency, get_user: dict = Depends(get_current_user)):
@@ -57,17 +48,9 @@ async def update_me(db: db_dependency, update_user: UpdateUser, get_user: dict =
 
 @user_router.post('/auth')
 async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
-    user = auth_user(form_data.username, form_data.password, db)
+    token = login_service(form_data.username, form_data.password, db)
 
-    if not user:
-        raise HTTPException(status_code=401, detail='Could not validate user')
-    else:
-        return create_access_token(
-            username=user.username,
-            user_id=user.id,
-            expires_delta=timedelta(days=2),
-            db=db
-            )
+    return token
 
 @user_router.post('/join')
 async def join_team(db: db_dependency, join_user: JoinUser, get_user: dict = Depends(get_current_user)):
