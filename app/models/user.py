@@ -1,6 +1,6 @@
 from app.core.database import Base
 
-from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import Column, Integer, String, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 
 from enum import Enum as PyEnum
@@ -20,5 +20,7 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     hashed_password = Column(String)
+    team_id = Column(Integer, ForeignKey('teams.id'), default=None)
     tasks = relationship('Task', back_populates='user')
+    team = relationship('Team', back_populates='users')
     

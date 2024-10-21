@@ -10,7 +10,8 @@ from starlette import status
 
 from datetime import timedelta
 
-from app.schema.user import CreateUser, UpdateUser
+from app.models.team import Team
+from app.schema.user import CreateUser, UpdateUser, JoinUser
 from app.models.user import User
 from app.core.database import db_dependency
 from app.core.security import create_access_token, get_current_user
@@ -60,9 +61,6 @@ async def create_user(db: db_dependency, create_user: CreateUser):
 @user_router.put('/update/me', status_code=status.HTTP_202_ACCEPTED)
 async def update_me(db: db_dependency, update_user: UpdateUser, get_user: dict = Depends(get_current_user)):
     user = db.query(User).filter(User.id == get_user['user_id']).first()
-
-    if user is None:
-        raise HTTPException(status=404, detail='User not found')
     
     user.email = update_user.email
     user.username = update_user.username
@@ -85,5 +83,18 @@ async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
             expires_delta=timedelta(days=2),
             db=db
             )
+
+@user_router.post('/join')
+async def join_team(db: db_dependency, join_user: JoinUser, get_user: dict = Depends(get_current_user)):
+    user = db.query(User).filter(User.id == get_user['user_id']).first()
+    team = db.query(Team).filter(Team.id == join_user.team_id).first()
+    if not team:
+        raise HTTPException(status_code=404, detail='Could not find team')
     
+    user.team_id = join_user.team_id
+
+    db.commit()
+    db.refresh(user)
+
+    return user
 
