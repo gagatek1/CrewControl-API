@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.models.team import Team
 from app.models.user import User
@@ -28,4 +28,13 @@ async def show_teams(db: db_dependency, get_user: dict = Depends(get_current_use
     teams = db.query(Team).all()
 
     return teams
+
+@team_router.get('/{team_id}')
+async def get_team(team_id: int, db: db_dependency, get_user: dict = Depends(get_current_user)):
+    team = db.query(Team).filter(Team.id == team_id).first()
+
+    if team is None:
+        raise HTTPException(status_code=404, detail='Could not find team')
+
+    return team
 
