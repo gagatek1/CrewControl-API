@@ -1,17 +1,17 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 
 from app.core.database import db_dependency
 from app.core.security import get_current_user
-from app.models.team import Team
 from app.models.user import User
 from app.schema.user import CreateUser, JoinUser, UpdateUser
 from app.services.user.create_service import create_service
 from app.services.user.login_service import login_service
 from app.services.user.update_service import update_service
+from app.services.user.join_service import join_service
 
 user_router = APIRouter(prefix='/users', tags=['users'])
 
@@ -49,14 +49,6 @@ async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 
 @user_router.post('/join')
 async def join_team(db: db_dependency, join_user: JoinUser, get_user: dict = Depends(get_current_user)):
-    user = db.query(User).filter(User.id == get_user['user_id']).first()
-    team = db.query(Team).filter(Team.id == join_user.team_id).first()
-    if not team:
-        raise HTTPException(status_code=404, detail='Could not find team')
-    
-    user.team_id = join_user.team_id
-
-    db.commit()
-    db.refresh(user)
+    user = join_service(get_user, join_user, db)
 
     return user
