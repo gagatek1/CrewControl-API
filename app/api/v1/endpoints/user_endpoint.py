@@ -11,6 +11,7 @@ from app.models.user import User
 from app.schema.user import CreateUser, JoinUser, UpdateUser
 from app.services.user.create_service import create_service
 from app.services.user.login_service import login_service
+from app.services.user.update_service import update_service
 
 user_router = APIRouter(prefix='/users', tags=['users'])
 
@@ -34,15 +35,9 @@ async def create_user(db: db_dependency, create_user: CreateUser):
 
     return user
 
-@user_router.put('/update/me', status_code=status.HTTP_202_ACCEPTED)
+@user_router.put('/update/me')
 async def update_me(db: db_dependency, update_user: UpdateUser, get_user: dict = Depends(get_current_user)):
-    user = db.query(User).filter(User.id == get_user['user_id']).first()
-    
-    user.email = update_user.email
-    user.username = update_user.username
-    # user.hashed_password = bcrypt_context.hash(update_user.password)
-    db.commit()
-    db.refresh(user)
+    user = update_service(update_user, get_user, db)
 
     return user
 
@@ -65,4 +60,3 @@ async def join_team(db: db_dependency, join_user: JoinUser, get_user: dict = Dep
     db.refresh(user)
 
     return user
-
