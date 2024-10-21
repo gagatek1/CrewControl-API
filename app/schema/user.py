@@ -20,3 +20,6 @@ class AdminUpdateUser(BaseModel):
     first_name: str
     last_name: str
     role: UserRole
+
+class JoinUser(BaseModel):
+    team_id: int
