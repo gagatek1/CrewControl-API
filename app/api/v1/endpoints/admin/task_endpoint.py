@@ -6,9 +6,9 @@ from app.models.task import Task
 from app.models.user import UserRole, User
 from app.schema.task import UpdateTask, AdminCreateTask
 
-admin_task_router = APIRouter(prefix='/tasks')
+task_router = APIRouter(prefix='/tasks')
 
-@admin_task_router.get('/')
+@task_router.get('/')
 async def show_tasks(db: db_dependency, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
 
@@ -17,7 +17,7 @@ async def show_tasks(db: db_dependency, get_admin: dict = Depends(get_current_us
 
         return tasks
     
-@admin_task_router.put('/update/{task_id}')
+@task_router.put('/update/{task_id}')
 async def update_task(task_id: int, db: db_dependency, update_task: UpdateTask, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
     
@@ -37,7 +37,7 @@ async def update_task(task_id: int, db: db_dependency, update_task: UpdateTask, 
 
     return task
 
-@admin_task_router.delete('/delete/{task_id}')
+@task_router.delete('/delete/{task_id}')
 async def delete_task(task_id: int, db: db_dependency, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
     task = db.query(Task).filter(Task.id == task_id).first()
@@ -52,7 +52,7 @@ async def delete_task(task_id: int, db: db_dependency, get_admin: dict = Depends
     else:
         raise HTTPException(status_code=401, detail='Could not validate')
     
-@admin_task_router.get('/{task_id}')
+@task_router.get('/{task_id}')
 async def show_task(task_id: int, db: db_dependency, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
     task = db.query(Task).filter(Task.id == task_id).first()
@@ -62,7 +62,7 @@ async def show_task(task_id: int, db: db_dependency, get_admin: dict = Depends(g
     else:
         raise HTTPException(status_code=401, detail='Could not validate')
 
-@admin_task_router.post('/create')
+@task_router.post('/create')
 async def create_task(db: db_dependency, create_task: AdminCreateTask, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
 
