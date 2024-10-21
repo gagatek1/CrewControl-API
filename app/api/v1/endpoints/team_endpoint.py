@@ -55,3 +55,18 @@ async def update_team(team_id: int, db: db_dependency, update_team: UpdateTeam, 
 
         return team
     raise HTTPException(status_code=401)
+
+@team_router.delete('/delete/{team_id}')
+async def delete_team(team_id: int, db: db_dependency, get_user: dict = Depends(get_current_user)):
+    team = db.query(Team).filter(Team.id == team_id).first()
+    user_id = get_user['user_id']
+
+    if team is None:
+        raise HTTPException(status_code=404, detail='Could not find team')
+    if team.team_leader == user_id:
+        db.delete(team)
+        db.commit()
+
+        return { 'status': 'deleted' }
+    
+    raise HTTPException(status_code=401)
