@@ -4,23 +4,15 @@ from app.core.database import db_dependency
 from app.core.security import get_current_user
 from app.schema.task import CreateTask, UpdateTask
 from app.models.task import Task
-from app.models.user import User
+from app.services.task.create_service import create_service
 
 task_router = APIRouter(prefix='/tasks', tags=['tasks'])
 
 @task_router.post('/create')
 async def create_task(db: db_dependency, create_task: CreateTask, get_user: dict = Depends(get_current_user)):
-    user = db.query(User).filter(User.id == get_user['user_id']).first()
+    task = create_service(get_user, create_task, db)
 
-    
-    create_task_model = Task(
-        name = create_task.name,
-        description = create_task.description,
-        user_id = user.id
-    )
- 
-    db.add(create_task_model)
-    db.commit()
+    return task
 
 @task_router.get('/')
 async def show_tasks(db: db_dependency, get_user: dict = Depends(get_current_user)):
