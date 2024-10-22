@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from starlette import status
 
-from app.models.team import Team
-from app.models.user import User, UserRole
+from app.models.user import User
 from app.schema.team import UpdateTeam
 from app.core.database import db_dependency
 from app.core.security import get_current_user
