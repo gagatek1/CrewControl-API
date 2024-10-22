@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from starlette import status
 
@@ -41,3 +41,18 @@ async def show_departments(db: db_dependency, get_admin: dict = Depends(get_curr
         departments = db.query(DepartmentModel).all()
 
         return departments
+    else:
+        raise HTTPException(status_code=401, detail='Could not validate')
+
+@department_router.get('/{department_id}')
+async def get_department(department_id: int, db: db_dependency, get_admin: dict = Depends(get_current_user)):
+    current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
+    department = db.query(DepartmentModel).filter(DepartmentModel.id == department_id).first()
+
+    if not department:
+        raise HTTPException(status_code=404, detail='Could not find department')
+    
+    if current_admin.role == UserRole.admin:
+        return department
+    else:
+        raise HTTPException(status_code=401, detail='Could not validate')
