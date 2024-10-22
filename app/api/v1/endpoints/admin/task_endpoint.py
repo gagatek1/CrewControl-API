@@ -9,6 +9,7 @@ from app.models.user import UserRole, User
 from app.schema.task import UpdateTask, AdminCreateTask
 from app.services.admin.task.update_service import update_service
 from app.services.admin.task.delete_service import delete_service
+from app.services.admin.task.create_service import create_service
 
 task_router = APIRouter(prefix='/tasks')
 
@@ -46,23 +47,10 @@ async def show_task(task_id: int, db: db_dependency, get_admin: dict = Depends(g
     else:
         raise HTTPException(status_code=401, detail='Could not validate')
 
-@task_router.post('/create')
+@task_router.post('/create', status_code=status.HTTP_201_CREATED)
 async def create_task(db: db_dependency, create_task: AdminCreateTask, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
 
-    if current_admin.role == UserRole.admin:
-        create_task_model = Task(
-            name = create_task.name,
-            description = create_task.description,
-            user_id = create_task.user_id
-        )
+    task = create_service(current_admin, create_task, db)
 
-        db.add(create_task_model)
-        db.commit()
-
-        return { 'status': 'created' }
-    else:
-        raise HTTPException(status_code=401, detail='Could not validate')
- 
-    
-    
+    return task
