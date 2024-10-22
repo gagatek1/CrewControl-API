@@ -7,5 +7,5 @@ class Department(Base):
     __tablename__ = 'departments'
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True, nullable=False)
+    name = Column(String, index=True, nullable=False, unique=True)
     teams = relationship('Team', back_populates='department')
