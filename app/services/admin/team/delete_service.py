@@ -11,7 +11,5 @@ def delete_service(current_admin, team_id, db):
     if current_admin.role == UserRole.admin:
         db.delete(team)
         db.commit()
-
-        return { 'status': 'deleted' }
     
     raise HTTPException(status_code=401, detail='Could not valid')
