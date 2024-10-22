@@ -4,8 +4,9 @@ from starlette import status
 
 from app.core.database import db_dependency
 from app.core.security import get_current_user
-from app.models.user import User
-from app.schema.department import Department
+from app.models.user import User, UserRole
+from app.models.department import Department as DepartmentModel
+from app.schema.department import Department 
 from app.services.admin.department.create_service import create_service
 from app.services.admin.department.update_service import update_service
 from app.services.admin.department.delete_service import delete_service
@@ -31,3 +32,12 @@ async def delete_department(department_id, db: db_dependency, get_admin: dict = 
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
 
     delete_service(current_admin, department_id, db)
+
+@department_router.get('/')
+async def show_departments(db: db_dependency, get_admin: dict = Depends(get_current_user)):
+    current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
+
+    if current_admin.role == UserRole.admin:
+        departments = db.query(DepartmentModel).all()
+
+        return departments
