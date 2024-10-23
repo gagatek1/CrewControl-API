@@ -8,7 +8,7 @@ from starlette import status
 from app.core.database import db_dependency
 from app.core.security import get_current_user
 from app.models.user import User
-from app.schema.user import CreateUser, JoinUser, UpdateUser
+from app.schemas.user import CreateUser, JoinUser, UpdateUser
 from app.services.user.create_service import create_service
 from app.services.user.login_service import login_service
 from app.services.user.update_service import update_service

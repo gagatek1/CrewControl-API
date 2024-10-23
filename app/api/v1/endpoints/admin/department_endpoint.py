@@ -8,7 +8,7 @@ from app.core.database import db_dependency
 from app.core.security import get_current_user
 from app.models.user import User, UserRole
 from app.models.department import Department as DepartmentModel
-from app.schema.department import Department 
+from app.schemas.department import Department 
 from app.services.admin.department.create_service import create_service
 from app.services.admin.department.update_service import update_service
 from app.services.admin.department.delete_service import delete_service

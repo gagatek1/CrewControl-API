@@ -6,7 +6,7 @@ from typing import List
 
 from app.core.database import db_dependency
 from app.core.security import get_current_user
-from app.schema.task import CreateTask, UpdateTask
+from app.schemas.task import CreateTask, UpdateTask
 from app.models.task import Task
 from app.services.task.update_service import update_service
 from app.services.task.create_service import create_service

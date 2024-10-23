@@ -7,7 +7,7 @@ from typing import List
 from app.core.database import db_dependency
 from app.core.security import get_current_user
 from app.models.user import User, UserRole
-from app.schema.user import AdminUpdateUser
+from app.schemas.user import AdminUpdateUser
 from app.services.admin.user.update_service import update_service
 from app.services.admin.user.delete_service import delete_service
 from app.serializers.admin.user_serializer import UserSerializer

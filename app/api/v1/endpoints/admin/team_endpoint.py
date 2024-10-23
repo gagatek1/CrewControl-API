@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from starlette import status
 
 from app.models.user import User
-from app.schema.team import UpdateTeam
+from app.schemas.team import UpdateTeam
 from app.core.database import db_dependency
 from app.core.security import get_current_user
 from app.services.admin.team.update_service import update_service

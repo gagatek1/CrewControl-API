@@ -5,7 +5,7 @@ from starlette import status
 from typing import List
 
 from app.models.team import Team
-from app.schema.team import CreateTeam, UpdateTeam
+from app.schemas.team import CreateTeam, UpdateTeam
 from app.core.database import db_dependency
 from app.core.security import get_current_user
 from app.services.team.create_service import create_service

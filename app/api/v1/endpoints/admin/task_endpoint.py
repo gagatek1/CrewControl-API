@@ -8,7 +8,7 @@ from app.core.database import db_dependency
 from app.core.security import get_current_user
 from app.models.task import Task
 from app.models.user import UserRole, User
-from app.schema.task import UpdateTask, AdminCreateTask
+from app.schemas.task import UpdateTask, AdminCreateTask
 from app.services.admin.task.update_service import update_service
 from app.services.admin.task.delete_service import delete_service
 from app.services.admin.task.create_service import create_service
