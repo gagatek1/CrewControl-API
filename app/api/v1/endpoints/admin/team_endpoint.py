@@ -8,10 +8,11 @@ from app.core.database import db_dependency
 from app.core.security import get_current_user
 from app.services.admin.team.update_service import update_service
 from app.services.admin.team.delete_service import delete_service
+from app.serializers.team_serializer import TeamSerializer
 
 team_router = APIRouter(prefix='/teams')
 
-@team_router.put('/update/{team_id}')
+@team_router.put('/update/{team_id}', response_model=TeamSerializer)
 async def update_team(team_id: int, db: db_dependency, update_team: UpdateTeam, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
     team = update_service(current_admin, team_id, update_team, db)
