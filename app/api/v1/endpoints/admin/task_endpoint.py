@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from starlette import status
 
+from typing import List
+
 from app.core.database import db_dependency
 from app.core.security import get_current_user
 from app.models.task import Task
@@ -10,10 +12,11 @@ from app.schema.task import UpdateTask, AdminCreateTask
 from app.services.admin.task.update_service import update_service
 from app.services.admin.task.delete_service import delete_service
 from app.services.admin.task.create_service import create_service
+from app.serializers.admin.task_serializer import TaskSerializer
 
 task_router = APIRouter(prefix='/tasks')
 
-@task_router.get('/')
+@task_router.get('/', response_model=List[TaskSerializer])
 async def show_tasks(db: db_dependency, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
 
@@ -22,7 +25,7 @@ async def show_tasks(db: db_dependency, get_admin: dict = Depends(get_current_us
 
         return tasks
     
-@task_router.put('/update/{task_id}')
+@task_router.put('/update/{task_id}', response_model=TaskSerializer)
 async def update_task(task_id: int, db: db_dependency, update_task: UpdateTask, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
     
@@ -37,7 +40,7 @@ async def delete_task(task_id: int, db: db_dependency, get_admin: dict = Depends
     delete_service(current_admin, task_id, db)
     
     
-@task_router.get('/{task_id}')
+@task_router.get('/{task_id}', response_model=TaskSerializer)
 async def show_task(task_id: int, db: db_dependency, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
     task = db.query(Task).filter(Task.id == task_id).first()
@@ -47,7 +50,7 @@ async def show_task(task_id: int, db: db_dependency, get_admin: dict = Depends(g
     else:
         raise HTTPException(status_code=401, detail='Could not validate')
 
-@task_router.post('/create', status_code=status.HTTP_201_CREATED)
+@task_router.post('/create', status_code=status.HTTP_201_CREATED, response_model=TaskSerializer)
 async def create_task(db: db_dependency, create_task: AdminCreateTask, get_admin: dict = Depends(get_current_user)):
     current_admin = db.query(User).filter(User.id == get_admin['user_id']).first()
 
