@@ -16,11 +16,11 @@ def test_user_create_endpoint():
     response = client.post(
         '/api/v1/users/create',
         json = {
-            "username": username,
-            "email": email,
-            "first_name": first_name,
-            "last_name": last_name,
-            "password": fake.password()
+            'username': username,
+            'email': email,
+            'first_name': first_name,
+            'last_name': last_name,
+            'password': fake.password()
         }  
     )
     
