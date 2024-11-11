@@ -29,4 +29,7 @@ db = SessionLocal()
 @pytest.fixture(scope='function', autouse=True)
 def setup():
     Base.metadata.create_all(bind=engine)
+
+def teardown():
+    Base.metadata.drop_all(bind=engine)
  
