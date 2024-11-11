@@ -22,7 +22,7 @@ USER appuser
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-ENV PATH /home/appuser/.local/bin
+ENV PATH /home/appuser/.local/bin:${PATH}
 
 EXPOSE 8000
 
