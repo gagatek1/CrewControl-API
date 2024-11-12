@@ -2,29 +2,29 @@ version: '3.1'
 
 services:
   api:
-    container_name: manage_api
+    container_name: crewcontrol_api
     build: .
     depends_on:
       - db
     tty: true
     stdin_open: true
     volumes:
-    - .:/home/appuser/manage_api:cached
+    - .:/home/appuser/crewcontrol_api:cached
     ports:
       - "8000:8000"
 
   db:
       image: postgres:15-alpine
-      container_name: manage_postgres
+      container_name: crewcontrol_postgres
       volumes:
-        - manage_postgres:/var/lib/postgresql/data
+        - crewcontrol_postgres:/var/lib/postgresql/data
         - ./docker/postgres/database:/database
       ports:
       - "5432:5432"
       environment:
-        - POSTGRES_USER=manage
-        - POSTGRES_PASSWORD=manage
-        - POSTGRES_DB=manage_db
+        - POSTGRES_USER=crewcontrol
+        - POSTGRES_PASSWORD=crewcontrol
+        - POSTGRES_DB=crewcontrol_db
 
 volumes:
-      manage_postgres: 
+      crewcontrol_postgres: 
